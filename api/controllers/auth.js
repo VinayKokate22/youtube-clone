@@ -5,12 +5,13 @@ const createError = require("../error");
 const jwt = require("jsonwebtoken");
 const signup = async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, img } = req.body;
     const hashpassword = await bcrypt.hash(password, 10);
     const user = await User.create({
       name,
       email,
       password: hashpassword,
+      img,
     });
     res.status(200).json({
       success: true,

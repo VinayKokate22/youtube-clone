@@ -106,7 +106,7 @@ const viewVideo = async (req, res, next) => {
 };
 const trendVideo = async (req, res, next) => {
   try {
-    const video = Video.find().sort({ views: -1 });
+    const video = await Video.find().sort({ views: -1 });
     res.status(200).json({ success: true, video });
   } catch (error) {
     next(error);
@@ -128,7 +128,7 @@ const randomVideo = async (req, res, next) => {
 };
 const subVideo = async (req, res, next) => {
   try {
-    const user = User.findById(req.user.userid);
+    const user = await User.findById(req.user.userid);
     const subscribedChannels = user.suscribedUsers;
     const list = await Promise.all(
       subscribedChannels.map((channelid) => {

@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { styled } from "styled-components";
 import img from "../img/photo.png";
+import { format } from "timeago.js";
 import img2 from "../img/photo2.png";
 import { Link } from "react-router-dom";
+import axios from "axios";
 const Container = styled.div`
   width: ${(prop) => (prop.type === "sm" ? "19.4rem" : "22.7rem")};
   height: ${(prop) => (prop.type === "sm" ? "7rem" : "20rem")};
@@ -64,20 +66,33 @@ const Img = styled.img`
     border-radius: 0rem;
   }
 `;
-const Card = ({ type }) => {
+const Card = ({ type, prop }) => {
+  const [channel, setchannel] = useState();
+  useEffect(() => {
+    const fetchvideos = async () => {
+      const res = await axios.get(
+        `http://localhost:8800/api/v1/user/find/${prop.userId}`
+      );
+      setchannel(res.data);
+      console.log(res.data);
+    };
+
+    fetchvideos();
+  }, []);
+
   return (
-    <Link to="/video/test" style={{ textDecoration: "none" }}>
+    <Link to="/video/test" style={{ textDecoration: "none", color: "inherit" }}>
       <Container type={type}>
-        <Img src={img} type={type} />
+        <Img src={prop?.imgUrl} type={type} />
         <Details type={type}>
-          {type === "sm" ? null : <ChannelImage src={img2} />}
+          {type === "sm" ? null : <ChannelImage src={channel?.img} />}
 
           <Texts>
-            <Title type={type}>
-              React social media app design dark/light mode & responsive & html
-            </Title>
-            <ChannelName type={type}>ChannelName</ChannelName>
-            <Info type={type}>125K views 1 year ago</Info>
+            <Title type={type}>{prop?.title}</Title>
+            <ChannelName type={type}>{channel?.name}</ChannelName>
+            <Info type={type}>
+              {prop?.views} views {format(prop?.createdAt)}
+            </Info>
           </Texts>
         </Details>
       </Container>

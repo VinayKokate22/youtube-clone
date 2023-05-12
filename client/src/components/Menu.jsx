@@ -17,6 +17,7 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import SettingsBrightnessOutlinedIcon from "@mui/icons-material/SettingsBrightnessOutlined";
+import { Link } from "react-router-dom";
 const Container = styled.div`
   flex: 1.5;
   background-color: ${({ theme }) => theme.bg};
@@ -94,28 +95,37 @@ const Menu = ({ darkMode, setdarkMode }) => {
   return (
     <Container>
       <Wrapper>
-        <Item>
-          <HomeIcon
-            sx={{ stroke: "${({ theme }) => theme.bg}", strokeWidth: 0.9 }}
-          />{" "}
-          Home
-        </Item>
-        <Item>
-          <ExploreOutlinedIcon
-            sx={{
-              stroke: "${({ theme }) => theme.bg}",
+        <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+          <Item>
+            <HomeIcon
+              sx={{ stroke: "${({ theme }) => theme.bg}", strokeWidth: 0.9 }}
+            />{" "}
+            Home
+          </Item>
+        </Link>
+        <Link to="/trends" style={{ textDecoration: "none", color: "inherit" }}>
+          <Item>
+            <ExploreOutlinedIcon
+              sx={{
+                stroke: "${({ theme }) => theme.bg}",
 
-              strokeWidth: 0.9,
-            }}
-          />
-          Explore
-        </Item>
-        <Item>
-          <SubscriptionsOutlinedIcon
-            sx={{ stroke: "${({ theme }) => theme.bg}", strokeWidth: 0.9 }}
-          />
-          Subscriptions
-        </Item>
+                strokeWidth: 0.9,
+              }}
+            />
+            Explore
+          </Item>
+        </Link>
+        <Link
+          to="/subcription"
+          style={{ textDecoration: "none", color: "inherit" }}
+        >
+          <Item>
+            <SubscriptionsOutlinedIcon
+              sx={{ stroke: "${({ theme }) => theme.bg}", strokeWidth: 0.9 }}
+            />
+            Subscriptions
+          </Item>
+        </Link>
         <Hr />
         <Item>
           <VideoLibraryOutlinedIcon
@@ -132,10 +142,15 @@ const Menu = ({ darkMode, setdarkMode }) => {
         <Hr />
         <Login>
           Sign in to like videos, comment and subscribe
-          <Button>
-            <AccountCircleOutlinedIcon />
-            Sign In
-          </Button>
+          <Link
+            to="/signin"
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
+            <Button>
+              <AccountCircleOutlinedIcon />
+              Sign In
+            </Button>
+          </Link>
         </Login>
         <Hr></Hr>
         <Title2>Best of Vinay</Title2>

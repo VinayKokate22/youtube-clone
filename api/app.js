@@ -1,4 +1,6 @@
 const express = require("express");
+const cors = require("cors");
+const morgan = require("morgan");
 const userroute = require("./routes/userroute");
 const videoroute = require("./routes/videoroute");
 const commentroute = require("./routes/commentroute");
@@ -7,6 +9,8 @@ const cookieParser = require("cookie-parser");
 const app = express();
 app.use(cookieParser());
 app.use(express.json());
+app.use(cors());
+app.use(morgan("tiny"));
 app.use("/api/v1/auth", authroute);
 app.use("/api/v1/user", userroute);
 app.use("/api/v1/video", videoroute);
