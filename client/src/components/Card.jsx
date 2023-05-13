@@ -70,9 +70,7 @@ const Card = ({ type, prop }) => {
   const [channel, setchannel] = useState();
   useEffect(() => {
     const fetchvideos = async () => {
-      const res = await axios.get(
-        `http://localhost:8800/api/v1/user/find/${prop.userId}`
-      );
+      const res = await axios.get(`user/find/${prop.userId}`);
       setchannel(res.data);
       console.log(res.data);
     };

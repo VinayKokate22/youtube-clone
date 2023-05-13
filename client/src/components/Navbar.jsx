@@ -2,6 +2,8 @@ import React from "react";
 import logopng from "../img/logo2.png";
 import { styled } from "styled-components";
 import SearchIcon from "@mui/icons-material/Search";
+import UploadIcon from "@mui/icons-material/Upload";
+import VideoCallOutlinedIcon from "@mui/icons-material/VideoCallOutlined";
 const Container = styled.div`
   background-color: ${({ theme }) => theme.bg};
   position: sticky;
@@ -12,6 +14,7 @@ const Container = styled.div`
 `;
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
@@ -68,7 +71,27 @@ const Title = styled.h2`
   letter-spacing: 0px;
   transform: scaleY(1.5);
 `;
+const Usertitle = styled.h3`
+  text-transform: capitalize;
+  font-size: 1rem;
+  font-weight: 500;
+`;
+const User = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+`;
+const Avatar = styled.img`
+  width: 2rem;
+  height: 2rem;
+  object-fit: cover;
+  border: none;
+  border-radius: 50%;
+`;
+
 const Navbar = () => {
+  const currentUser = useSelector((state) => state.user);
+  console.log(currentUser);
   return (
     <Container>
       <Wrapper>
@@ -84,10 +107,21 @@ const Navbar = () => {
             <SearchIcon />
           </div>
         </Search>
-        <Button>
-          <AccountCircleOutlinedIcon />
-          Sign In
-        </Button>
+        {currentUser.currentuser ? (
+          <User>
+            <Button>
+              <VideoCallOutlinedIcon />
+            </Button>
+
+            <Avatar src={currentUser.currentuser.img} />
+            <Usertitle>{currentUser.currentuser.name}</Usertitle>
+          </User>
+        ) : (
+          <Button>
+            <AccountCircleOutlinedIcon />
+            Sign In
+          </Button>
+        )}
       </Wrapper>
     </Container>
   );

@@ -1,6 +1,8 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import styled from "styled-components";
+import { loginFailure, loginStart, loginSuccess } from "../redux/UserSlice";
 
 const Container = styled.div`
   display: flex;
@@ -68,23 +70,25 @@ const Sign = () => {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
+  const dispatch = useDispatch();
   // useEffect(() => {
   //   console.log("this is the user credentials ", name, password, email);
   // }, [name, password, email]);
   const handleLogin = async (e) => {
     e.preventDefault();
+    dispatch(loginStart());
     console.log("this is the user credentials ", name, password, email);
-    console.log("1");
+
     // to prevent the refresh of the page when we click on the signin button
     try {
-      console.log("2");
       const res = await axios.post("http://localhost:8800/api/v1/auth/signin", {
         name,
         password,
       });
-      console.log("3");
-      console.log(res.data);
-    } catch (error) {}
+      dispatch(loginSuccess(res.data));
+    } catch (error) {
+      dispatch(loginFailure());
+    }
   };
   const handlesignup = async (e) => {
     e.preventDefault();

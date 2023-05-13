@@ -18,6 +18,7 @@ import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import SettingsBrightnessOutlinedIcon from "@mui/icons-material/SettingsBrightnessOutlined";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 const Container = styled.div`
   flex: 1.5;
   background-color: ${({ theme }) => theme.bg};
@@ -92,6 +93,7 @@ const Button = styled.button`
 `;
 
 const Menu = ({ darkMode, setdarkMode }) => {
+  const currentUser = useSelector((state) => state.user);
   return (
     <Container>
       <Wrapper>
@@ -140,19 +142,24 @@ const Menu = ({ darkMode, setdarkMode }) => {
           History
         </Item>
         <Hr />
-        <Login>
-          Sign in to like videos, comment and subscribe
-          <Link
-            to="/signin"
-            style={{ textDecoration: "none", color: "inherit" }}
-          >
-            <Button>
-              <AccountCircleOutlinedIcon />
-              Sign In
-            </Button>
-          </Link>
-        </Login>
-        <Hr></Hr>
+        {currentUser.currentuser ? null : (
+          <>
+            <Login>
+              Sign in to like videos, comment and subscribe
+              <Link
+                to="/signin"
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <Button>
+                  <AccountCircleOutlinedIcon />
+                  Sign In
+                </Button>
+              </Link>
+            </Login>
+            <Hr></Hr>
+          </>
+        )}
+
         <Title2>Best of Vinay</Title2>
         <Item>
           <LibraryMusicOutlinedIcon

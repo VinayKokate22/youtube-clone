@@ -11,7 +11,7 @@ const Home = ({ type }) => {
   const [video, setvideo] = useState([]);
   useEffect(() => {
     const fetchvideos = async () => {
-      const res = await axios.get(`http://localhost:8800/api/v1/video/${type}`);
+      const res = await axios.get(`video/${type}`);
       setvideo(res.data.video);
       console.log(res.data.video);
     };
