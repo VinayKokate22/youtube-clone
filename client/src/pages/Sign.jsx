@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { loginFailure, loginStart, loginSuccess } from "../redux/UserSlice";
+import { useNavigate } from "react-router-dom";
 
 const Container = styled.div`
   display: flex;
@@ -67,6 +68,7 @@ const Link = styled.span`
 `;
 
 const Sign = () => {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
@@ -86,6 +88,8 @@ const Sign = () => {
         password,
       });
       dispatch(loginSuccess(res.data));
+      console.log(res);
+      res.status === 200 && navigate(`/`);
     } catch (error) {
       dispatch(loginFailure());
     }
@@ -98,6 +102,7 @@ const Sign = () => {
         name,
         password,
         email,
+        img: "https://img.freepik.com/free-photo/young-bearded-man-with-striped-shirt_273609-5677.jpg?w=1060&t=st=1686073527~exp=1686074127~hmac=b7f557b56a0317a4f0b8087ebfeedb5c938e10a404d7148b7b6eda1c848e606b",
       });
       console.log(res.data);
     } catch (error) {}

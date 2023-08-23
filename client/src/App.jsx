@@ -9,6 +9,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Video from "./pages/Video";
 import Sign from "./pages/Sign";
+import Search from "./pages/Search";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -51,10 +52,11 @@ function App() {
                   <Route path="/">
                     <Route index element={<Home type="random" />} />
                     <Route path="trends" element={<Home type="trend" />} />
+                    <Route path="search" element={<Search />} />
                     <Route path="subcription" element={<Home type="sub" />} />
                     <Route path="signin" element={<Sign />} />
                     <Route path="video">
-                      <Route path=":id" element={<Video />} />
+                      <Route path=":id" element={<Video type="random" />} />
                     </Route>
                   </Route>
                 </Routes>

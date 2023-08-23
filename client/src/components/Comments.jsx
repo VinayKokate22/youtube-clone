@@ -1,7 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { styled } from "styled-components";
 import img from "../img/photo.png";
 import img2 from "../img/photo2.png";
+import axios from "axios";
+import { format } from "timeago.js";
+import SingleComment from "./SingleComment";
+import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -10,7 +16,7 @@ const Container = styled.div`
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
 `;
 const Input = styled.input`
   background-color: transparent;
@@ -49,6 +55,7 @@ const ChannelImage = styled.img`
   width: 2.4rem;
   height: 2.4rem;
   border: none;
+  object-fit: cover;
   border-radius: 50%;
   cursor: pointer;
 `;
@@ -62,60 +69,76 @@ const CommentInfo = styled.div`
 
   gap: 0.5rem;
 `;
-const Comments = () => {
+const Button = styled.button`
+  width: fit-content;
+  cursor: pointer;
+  padding: 0.2rem 0.8rem;
+  background-color: transparent;
+  border: 1px solid #3ea6ff;
+  color: #3ea6ff;
+`;
+const Comments = ({ prop }) => {
+  const currentUser = useSelector((state) => state.user);
+  const [Comment, setComment] = useState(null);
+  const [writeComment, setwriteComment] = useState(null);
+  const [commentUpdated, setCommentUpdated] = useState(null);
+  const data = useSelector((state) => state.user);
+  const location = useLocation();
+  const url = location.pathname.substring(
+    location.pathname.lastIndexOf("/") + 1
+  );
+  const handlecommentPost = async (e) => {
+    try {
+      const res = await axios.post(
+        "http://localhost:8800/api/v1/comment",
+
+        {
+          videoId: prop,
+          desc: writeComment,
+        },
+        {
+          headers: {
+            authorization: "Bearer " + data.currentuser?.accesstoken,
+          },
+        }
+      );
+      console.log("response of the comment", res.data);
+      setCommentUpdated(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    const getcomment = async () => {
+      const video_comment_res = await axios.get(
+        `http://localhost:8800/api/v1/comment/${prop}`
+      );
+      setComment(video_comment_res.data.comment);
+      console.log("the comment info ", video_comment_res.data.comment);
+      console.log("the prop is ", prop);
+    };
+    getcomment();
+  }, [commentUpdated, url]);
   return (
     <Container>
       <Title>Comments</Title>
-      <Wrapper>
-        <ChannelImage src={img2} />
-        <Input></Input>
-      </Wrapper>
-      <Wrapper>
-        <ChannelImage src={img2} />
-        <ChannelComment>
-          <CommentInfo>
-            <ChannelName>Prathamxsi</ChannelName>
-            <InfoC>1 day ago</InfoC>
-          </CommentInfo>
+      {currentUser.currentuser?.userWithoutPassword ? (
+        <Wrapper>
+          <ChannelImage src={currentUser.currentuser.userWithoutPassword.img} />
+          <Input onChange={(e) => setwriteComment(e.target.value)}></Input>
+          <Button onClick={() => handlecommentPost()}> Post </Button>
+        </Wrapper>
+      ) : null}
 
-          <Info>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Excepturi
-            error porro illo, ratione, neque aliquam quod similique esse facere
-            iusto exercitationem recusandae ab inventore laboriosam. Sequi natus
-            quos suscipit repellendus?
-          </Info>
-        </ChannelComment>
-      </Wrapper>
-      <Wrapper>
-        <ChannelImage src={img2} />
-        <ChannelComment>
-          <CommentInfo>
-            <ChannelName>Prathamxsi</ChannelName>
-            <InfoC>1 day ago</InfoC>
-          </CommentInfo>
-          <Info>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Excepturi
-            error porro illo, ratione, neque aliquam quod similique esse facere
-            iusto exercitationem recusandae ab inventore laboriosam. Sequi natus
-            quos suscipit repellendus?
-          </Info>
-        </ChannelComment>
-      </Wrapper>
-      <Wrapper>
-        <ChannelImage src={img2} />
-        <ChannelComment>
-          <CommentInfo>
-            <ChannelName>Prathamxsi</ChannelName>
-            <InfoC>1 day ago</InfoC>
-          </CommentInfo>
-          <Info>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Excepturi
-            error porro illo, ratione, neque aliquam quod similique esse facere
-            iusto exercitationem recusandae ab inventore laboriosam. Sequi natus
-            quos suscipit repellendus?
-          </Info>
-        </ChannelComment>
-      </Wrapper>
+      {Comment?.map((comment) => {
+        return (
+          <SingleComment
+            key={comment._id}
+            prop={comment}
+            setCommentUpdated={setCommentUpdated}
+          />
+        );
+      })}
     </Container>
   );
 };

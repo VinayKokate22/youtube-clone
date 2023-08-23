@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { styled } from "styled-components";
+import { format } from "timeago.js";
 import img from "../img/photo.png";
 import img2 from "../img/photo2.png";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
@@ -8,6 +9,9 @@ import ShareIcon from "@mui/icons-material/Share";
 import SaveAltIcon from "@mui/icons-material/SaveAlt";
 import Comments from "../components/Comments";
 import Card from "../components/Card";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import { useLocation } from "react-router-dom";
 const Container = styled.div`
   display: flex;
   gap: 1.5rem;
@@ -32,12 +36,12 @@ const ChannelImage = styled.img`
   height: 2.4rem;
   border: none;
   border-radius: 50%;
+  object-fit: cover;
   cursor: pointer;
 `;
-const VideoWrapper = styled.img`
+const VideoWrapper = styled.div`
   width: 100%;
   height: 30rem;
-  object-fit: cover;
 `;
 const Title = styled.h2`
   font-size: 1.25rem;
@@ -99,18 +103,139 @@ const SubButton = styled.button`
 const Recommended = styled.div`
   flex: 2;
 `;
-const Video = () => {
+const VideoFrame = styled.video`
+  height: 30rem;
+  max-height: 30rem;
+  width: 100%;
+  object-fit: cover;
+`;
+const Video = ({ type }) => {
+  const data = useSelector((state) => state.user);
+  const url = window.location.href;
+  const id = url.substring(url.lastIndexOf("/") + 1);
+  const location = useLocation();
+  const windowurl = location.pathname.substring(
+    location.pathname.lastIndexOf("/") + 1
+  );
+  //the data is the accesstoken of the user which will be used by the verify function to verify the user
+  const [video, setvideo] = useState([]);
+  const [mainvideo, setmainvideo] = useState(null);
+  const [User, setUser] = useState(null);
+  const [SigninUser, setSigninUser] = useState(null);
+  const [Like, setLike] = useState(null);
+  const [Sub, setSub] = useState(null);
+  const [Id, setId] = useState(true);
+
+  useEffect(() => {
+    const getVideo = async () => {
+      const res = await axios.get(
+        `http://localhost:8800/api/v1/video/find/${id}`
+      );
+      // console.log("the main video data is", res.data.video);
+      setmainvideo(res.data.video);
+      const res_user = await axios.get(
+        `http://localhost:8800/api/v1/user/find/${res.data.video.userId}`
+      );
+      // console.log("the user info of the video", res_user.data);
+
+      setUser(res_user.data);
+    };
+
+    const fetchvideos = async () => {
+      const res = await axios.get(
+        `http://localhost:8800/api/v1/video/${type}`,
+        {
+          headers: {
+            authorization: "Bearer " + data.currentuser?.accesstoken,
+          },
+        }
+      );
+      setvideo(res.data.video);
+      // console.log(res.data.video);
+    };
+    const getsigninUser = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:8800/api/v1/user/find/${data.currentuser.userWithoutPassword._id}`
+        );
+        setSigninUser(res.data);
+      } catch (error) {}
+    };
+
+    fetchvideos();
+    getVideo();
+    getsigninUser();
+  }, [type, Like, Sub, Id, windowurl]);
+  const handleLikeVideo = async () => {
+    const res = await axios.get(
+      `http://localhost:8800/api/v1/user/like/${id}`,
+      {
+        headers: {
+          authorization: "Bearer " + data.currentuser?.accesstoken,
+        },
+      }
+    );
+    setLike(res.data);
+    console.log(res.data);
+  };
+  const handleDisikeVideo = async () => {
+    const res = await axios.get(
+      `http://localhost:8800/api/v1/user/dislike/${id}`,
+      {
+        headers: {
+          authorization: "Bearer " + data.currentuser?.accesstoken,
+        },
+      }
+    );
+    setLike(res.data);
+    console.log(res.data);
+  };
+  const dispatch = useDispatch();
+  const handleSubscribe = async () => {
+    try {
+      const res = await axios.put(
+        `http://localhost:8800/api/v1/user/sub/${mainvideo.userId}`,
+        {},
+        {
+          headers: {
+            authorization: "Bearer " + data.currentuser?.accesstoken,
+          },
+        }
+      );
+      setSub(res.data);
+      dispatch();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleUnSubscribe = async () => {
+    try {
+      const res = await axios.put(
+        `http://localhost:8800/api/v1/user/unsub/${mainvideo.userId}`,
+        {},
+        {
+          headers: {
+            authorization: "Bearer " + data.currentuser?.accesstoken,
+          },
+        }
+      );
+      setSub(res.data);
+      console.log(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <Container>
       <Content>
-        <VideoWrapper src={img}></VideoWrapper>
-        <Title>
-          React social media app design dark/light mode & responsive & html
-        </Title>
+        <VideoWrapper>
+          <VideoFrame src={mainvideo?.videoUrl} controls></VideoFrame>
+        </VideoWrapper>
+        <Title>{mainvideo?.title}</Title>
         <Details>
           {/* <Info>125K views 1 year ago</Info> */}
           <ChannelDetails>
-            <ChannelImage src={img2} />
+            <ChannelImage src={User?.img} />
             <div
               style={{
                 display: "flex",
@@ -118,22 +243,31 @@ const Video = () => {
                 gap: "0.2rem",
               }}
             >
-              <ChannelName>VinayDev</ChannelName>
+              <ChannelName>{User?.name}</ChannelName>
               <p style={{ color: "#868686", fontSize: "14px" }}>
-                187k Subscribers
+                {User?.suscribers} Subscribers
               </p>
             </div>
-            <SubButton>Subscribe</SubButton>
+            {console.log(SigninUser?.suscribedUsers)}
+            {console.log(User?._id)}
+            {console.log(SigninUser?.suscribedUsers.includes(User?._id))}
+            {SigninUser?.suscribedUsers.includes(User?._id) ? (
+              <SubButton onClick={() => handleUnSubscribe()}>
+                UnSubscribe
+              </SubButton>
+            ) : (
+              <SubButton onClick={() => handleSubscribe()}>Subscribe</SubButton>
+            )}
           </ChannelDetails>
 
           <Buttons>
-            <Button>
+            <Button onClick={() => handleLikeVideo()}>
               <ThumbUpIcon />
-              123
+              {mainvideo?.likes.length}
             </Button>
-            <Button>
+            <Button onClick={() => handleDisikeVideo()}>
               <ThumbDownIcon />
-              123
+              {mainvideo?.dislike.length}
             </Button>
             <Button>
               <ShareIcon />
@@ -146,29 +280,16 @@ const Video = () => {
           </Buttons>
         </Details>
         <Info>
-          65,100 views May 10, 2023 <br /> <br /> T React social media app
-          design dark/light mode & responsive & html
+          {mainvideo?.views} views {format(mainvideo?.createdAt)} <br /> <br />{" "}
+          {mainvideo?.desc}
         </Info>
-        <Comments />
+        <Comments prop={id} />
       </Content>
 
-      <Recommended>
-        <Card type="sm" />
-        <Card type="sm" />
-        <Card type="sm" />
-        <Card type="sm" />
-        <Card type="sm" />
-        <Card type="sm" />
-        <Card type="sm" />
-        <Card type="sm" />
-        <Card type="sm" />
-        <Card type="sm" />
-        <Card type="sm" />
-        <Card type="sm" />
-        <Card type="sm" />
-        <Card type="sm" />
-        <Card type="sm" />
-        <Card type="sm" />
+      <Recommended onClick={() => setId(!Id)}>
+        {video?.map((video) => {
+          return <Card key={video._id} type="sm" prop={video} />;
+        })}
       </Recommended>
     </Container>
   );

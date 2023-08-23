@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import logopng from "../img/logo2.png";
 import { styled } from "styled-components";
 import SearchIcon from "@mui/icons-material/Search";
@@ -13,8 +13,9 @@ const Container = styled.div`
   min-height: 8vh;
 `;
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import Upload from "./Upload";
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
@@ -91,39 +92,56 @@ const Avatar = styled.img`
 
 const Navbar = () => {
   const currentUser = useSelector((state) => state.user);
+  const [Open, setOpen] = useState(false);
+  const [q, setq] = useState(null);
+  const navigate = useNavigate();
   console.log(currentUser);
   return (
-    <Container>
-      <Wrapper>
-        <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
-          <Logo>
-            <Img src={logopng} />
-            <Title>youTube</Title>
-          </Logo>
-        </Link>
-        <Search>
-          <Input></Input>
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <SearchIcon />
-          </div>
-        </Search>
-        {currentUser.currentuser ? (
-          <User>
-            <Button>
-              <VideoCallOutlinedIcon />
-            </Button>
+    <>
+      <Container>
+        <Wrapper>
+          <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+            <Logo>
+              <Img src={logopng} />
+              <Title>youTube</Title>
+            </Logo>
+          </Link>
+          <Search>
+            <Input
+              placeholder="Search"
+              onChange={(e) => setq(e.target.value)}
+            ></Input>
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <SearchIcon onClick={() => navigate(`/search?q=${q}`)} />
+            </div>
+          </Search>
+          {currentUser.currentuser ? (
+            <User>
+              <Button onClick={() => setOpen(true)}>
+                <VideoCallOutlinedIcon />
+              </Button>
 
-            <Avatar src={currentUser.currentuser.img} />
-            <Usertitle>{currentUser.currentuser.name}</Usertitle>
-          </User>
-        ) : (
-          <Button>
-            <AccountCircleOutlinedIcon />
-            Sign In
-          </Button>
-        )}
-      </Wrapper>
-    </Container>
+              <Avatar src={currentUser.currentuser.userWithoutPassword.img} />
+              <Usertitle>
+                {currentUser.currentuser.userWithoutPassword.name}
+              </Usertitle>
+            </User>
+          ) : (
+            <Link
+              to="/signin"
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
+              <Button>
+                <AccountCircleOutlinedIcon />
+                Sign In
+              </Button>
+            </Link>
+          )}
+        </Wrapper>
+      </Container>
+
+      {Open && <Upload setOpen={setOpen} />}
+    </>
   );
 };
 

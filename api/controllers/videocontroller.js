@@ -128,16 +128,26 @@ const randomVideo = async (req, res, next) => {
 };
 const subVideo = async (req, res, next) => {
   try {
+    // const user = await User.findById(req.user.userid);
+    // const subscribedChannels = user.suscribedUsers;
+    // const list = await Promise.all(
+    //   subscribedChannels.map((channelid) => {
+    //     return Video.find({ userId: channelid });
+    //   })
+    // );
+    // res.status(200).json(list.flat().sort((a, b) => b.createdAt - a.createdAt));
+    // flat haddles the double array problem
     const user = await User.findById(req.user.userid);
     const subscribedChannels = user.suscribedUsers;
-    const list = await Promise.all(
-      subscribedChannels.map((channelid) => {
-        return Video.find({ userId: channelid });
-      })
-    );
-    res.status(200).json(list.flat().sort((a, b) => b.createdAt - a.createdAt));
-    // flat haddles the double array problem
-  } catch (error) {}
+
+    const video = await Video.find({
+      userId: { $in: subscribedChannels },
+    }).sort({ createdAt: -1 });
+    // const video = await Video.find().sort({ views: -1 });
+    res.status(200).json({ success: true, video });
+  } catch (error) {
+    next(error);
+  }
 };
 const tagVideo = async (req, res, next) => {
   try {
@@ -152,9 +162,9 @@ const tagVideo = async (req, res, next) => {
 const searchVideo = async (req, res, next) => {
   const query = req.query.q;
   try {
-    const video = Video.find({ title: { $regex: query, $options: "i" } }).limit(
-      40
-    );
+    const video = await Video.find({
+      title: { $regex: query, $options: "i" },
+    }).limit(40);
     res.status(200).json({ success: true, video });
   } catch (error) {
     next(error);

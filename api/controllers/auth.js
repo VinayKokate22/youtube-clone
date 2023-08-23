@@ -45,13 +45,13 @@ const signin = async (req, res, next) => {
       process.env.SECRET_KEY,
       { expiresIn: "24h" }
     );
-
-    res
-      .cookie("access_token", accesstoken, {
-        httpOnly: true,
-      })
-      .status(200)
-      .json(userWithoutPassword);
+    // document.cookie = `access_token=${accesstoken}`;
+    // res.cookie("access_token", accesstoken, {
+    //   maxAge: 36000, // expires after 1 hr
+    //   httpOnly: true, // cannot be modified using XSS or JS
+    //   sameSite: "none",
+    // });
+    res.status(200).json({ userWithoutPassword, accesstoken });
   } catch (error) {
     next(error);
   }

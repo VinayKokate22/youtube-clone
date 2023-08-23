@@ -72,8 +72,8 @@ const unsuscribeUser = async (req, res, next) => {
     if (!user) {
       return next(createError(404, "User not found"));
     }
-    if (user.suscribedUsers.includes(req.params.id)) {
-      return next(createError(400, "Already Suscribed"));
+    if (!user.suscribedUsers.includes(req.params.id)) {
+      return next(createError(400, "Not Suscribed"));
     } else {
       const targetuser = await User.findByIdAndUpdate(req.params.id, {
         $inc: { suscribers: -1 },

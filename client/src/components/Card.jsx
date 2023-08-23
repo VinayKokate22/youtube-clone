@@ -10,7 +10,6 @@ const Container = styled.div`
   height: ${(prop) => (prop.type === "sm" ? "7rem" : "20rem")};
   background-color: transparent;
   display: flex;
-
   flex-direction: ${(prop) => (prop.type === "sm" ? "row" : "column")};
   gap: 1rem;
 `;
@@ -25,6 +24,7 @@ const ChannelImage = styled.img`
   border: none;
   border-radius: 50%;
   cursor: pointer;
+  object-fit: cover;
 `;
 const Texts = styled.div`
   display: flex;
@@ -68,19 +68,37 @@ const Img = styled.img`
 `;
 const Card = ({ type, prop }) => {
   const [channel, setchannel] = useState();
+  const [View, setView] = useState();
+
   useEffect(() => {
     const fetchvideos = async () => {
-      const res = await axios.get(`user/find/${prop.userId}`);
+      const res = await axios.get(
+        `http://localhost:8800/api/v1/user/find/${prop.userId}`
+      );
       setchannel(res.data);
-      console.log(res.data);
+      // console.log("channel info", res.data);
     };
 
     fetchvideos();
-  }, []);
+  }, [View]);
+  const handleViewVideo = async () => {
+    try {
+      const res = await axios.put(
+        `http://localhost:8800/api/v1/video/view/${prop?._id}`
+      );
+      setView(res.data);
+      console.log("the video is viewed", res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
-    <Link to="/video/test" style={{ textDecoration: "none", color: "inherit" }}>
-      <Container type={type}>
+    <Link
+      to={`/video/${prop._id}`}
+      style={{ textDecoration: "none", color: "inherit" }}
+    >
+      <Container type={type} onClick={() => handleViewVideo()}>
         <Img src={prop?.imgUrl} type={type} />
         <Details type={type}>
           {type === "sm" ? null : <ChannelImage src={channel?.img} />}

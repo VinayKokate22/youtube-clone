@@ -35,7 +35,9 @@ const deleteComment = async (req, res, next) => {
 };
 const getComment = async (req, res, next) => {
   try {
-    const comment = Comments.find({ videoId: req.params.VideoId });
+    const comment = await Comments.find({ videoId: req.params.VideoId })
+      .sort({ createdAt: -1 }) // Sort by createdAt field in descending order (-1)
+      .exec();
     res.status(200).json({
       success: true,
       comment,
